@@ -6,10 +6,12 @@ class User{
     async new(email,password,name){
         try {
             let hash = await bcrypt.hash(password,10);
-            await knex.insert({email,password: hash,name,role: 0}).table("users");
+            let id = await knex.insert({email,password: hash,name,role: 0}).table("users");
+            return {id:id[0],email:email,name:name}
         }
         catch (error){
             console.log(error);
+            return false;
         }
 
     }
@@ -39,7 +41,7 @@ class User{
 
     async findById(id){
         try {
-            let result = await knex.select(["id","name","email","role"]).from("users").where({id:id});
+            let result = await knex.select(["id","name","email","role"]).from("useris").where({id:id});
             if(result[0])
                 return result[0];
             else

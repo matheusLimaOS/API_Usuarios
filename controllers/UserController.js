@@ -24,14 +24,21 @@ class UserController{
 
     async findUser(req,res){
         let id = req.params.id;
-        let user = await User.findById(id);
-        if(user === false){
-            res.status(404);
-            res.json({});
-        }
-        else{
+        try{
+            let user = await User.findById(id);
+            if(user === false){
+                res.status(404);
+                res.json({message: "Usuário não encontrado!"});
+                return
+            }
+            res.status(200);
             res.json({user:user});
         }
+        catch (error){
+            res.status(500);
+            res.json({message:"Erro interno do sistema!"});
+        }
+
     }
     //Possui 1 Pârametro (ID)
     //Não possui Body
@@ -50,9 +57,16 @@ class UserController{
                 return;
             }
 
-            await User.new(email, password, name);
+            let user = await User.new(email, password, name);
+
+            if(user===false){
+                res.status(500);
+                res.json({message:"Erro interno do sistema!"});
+                return;
+            }
+
             res.status(200);
-            res.json(valida.mensagem);
+            res.json(user);
         }
         catch (error) {
             console.log(error);
@@ -229,7 +243,7 @@ class UserController{
         }
         catch (err){
             console.log(err);
-            res.status(200);
+            res.status(500);
             res.json({message:"Erro interno do sistema"})
         }
     }
@@ -246,7 +260,7 @@ async function valida1(email,password){
     }
 
     if(email===undefined || email.toString().indexOf("@") < 0 ){
-        resultado.status = 400;
+        resultado.status = 411;
         resultado.mensagem="E-mail Inválido";
         return resultado;
     }
@@ -256,7 +270,7 @@ async function valida1(email,password){
         return resultado;
     }
     else if(password===undefined || password.toString().indexOf(" ") > 0){
-        resultado.status = 400;
+        resultado.status = 411;
         resultado.mensagem="Senha Inválida";
         return resultado;
     }
@@ -275,7 +289,7 @@ async function validageral(idc,name,email,role){
     let validaemail = await User.findByEmail(email);
 
     if(name === undefined && email === undefined && role === undefined){
-        date.status = 406;
+        date.status = 400;
         date.message = "Nenhum dado foi enviado";
     }
     if(validaemail.id !== idc.id && validaemail !== false){
