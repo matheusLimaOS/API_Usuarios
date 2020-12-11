@@ -269,7 +269,7 @@ async function valida1(email,password){
         resultado.mensagem = "E-mail já cadastrado";
         return resultado;
     }
-    else if(password===undefined || password.toString().indexOf(" ") > 0){
+    else if(password===undefined || password.toString().indexOf(" ") > 0 || password.length < 6){
         resultado.status = 411;
         resultado.mensagem="Senha Inválida";
         return resultado;
