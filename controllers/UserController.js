@@ -53,7 +53,7 @@ class UserController{
 
             if(valida.status!==200){
                 res.status(valida.status);
-                res.json(valida.mensagem);
+                res.json({message: valida.mensagem});
                 return;
             }
 
@@ -71,7 +71,7 @@ class UserController{
         catch (error) {
             console.log(error);
             res.status(500);
-            res.json("ERRO INTERNO DO SISTEMA");
+            res.json({message:"Erro interno do sistema!"});
         }
     }
     //Possui nenhum Pârametro
@@ -93,7 +93,7 @@ class UserController{
         try {
             if(idc===false){
                 res.status(404);
-                res.json("Usuário não cadastrado!");
+                res.json({message:"Usuário não cadastrado!"});
                 return;
             }
 
@@ -101,7 +101,7 @@ class UserController{
 
             if(date.status!==200){
                 res.status(date.status);
-                res.json(date.message);
+                res.json({message:date.message});
                 return;
             }
 
@@ -109,7 +109,7 @@ class UserController{
                 let valida = await User.update(id.id,date.email, date.name,date.role);
                 if(!valida.status) {
                     res.status(500);
-                    res.json(valida.err);
+                    res.json({message:valida.err});
                     return;
                 }
 
@@ -125,7 +125,7 @@ class UserController{
         catch (error){
             console.log(error);
             res.status(500);
-            res.json("ERRO INTERNO DO SISTEMA");
+            res.json({message:"ERRO INTERNO DO SISTEMA"});
         }
     }
     //Possui 1 Parametro (ID)
@@ -140,7 +140,6 @@ class UserController{
             valida = await User.delete(id.id);
             res.status(valida.statuscode);
             if(!valida.status){
-
                 res.json({message:valida.err})
                 return
             }
@@ -149,7 +148,7 @@ class UserController{
         }
         catch (err){
             res.status(500);
-            res.json({});
+            res.json({message:"Erro interno do sistema!"});
         }
     }
     //Possui 1 Parametro (ID)
@@ -185,7 +184,7 @@ class UserController{
 
             if (!result.status) {
                 res.status(result.statusCode);
-                res.json(result.message);
+                res.json({message:result.message});
                 return;
             }
 
@@ -193,7 +192,7 @@ class UserController{
 
             if(!change.status){
                 res.status(change.statusCode);
-                res.json(change.message);
+                res.json({message:change.message});
                 return
             }
 
@@ -201,7 +200,7 @@ class UserController{
 
             if(!used.status){
                 res.status(used.statusCode);
-                res.json(used.message);
+                res.json({message:used.message});
                 return
             }
 
@@ -269,9 +268,13 @@ async function valida1(email,password){
         resultado.mensagem = "E-mail já cadastrado";
         return resultado;
     }
-    else if(password===undefined || password.toString().indexOf(" ") > 0 || password.length < 6){
+    else if(password===undefined || password.toString().indexOf(" ") > 0 ){
         resultado.status = 411;
-        resultado.mensagem="Senha Inválida";
+        resultado.mensagem="Senha não pode conter espaços!";
+        return resultado;
+    }else if(password.length < 6){
+        resultado.status = 411;
+        resultado.mensagem="Senha deve conter no minimo 6 caracteres!";
         return resultado;
     }
     else{

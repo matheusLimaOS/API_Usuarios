@@ -10,7 +10,6 @@ class Product{
             return false;
         }
     }
-
     async new(descricao,tamanho,quantidade,valor){
         let teste = await this.findByDescAndSize(descricao,tamanho);
 
@@ -30,7 +29,6 @@ class Product{
 
 
     }
-
     async findByID(id){
         try {
             let idc = await knex.select("*").where({id:id}).table("produtos");
@@ -45,7 +43,6 @@ class Product{
         }
 
     }
-
     async findByDescAndSize(descricao,tamanho){
         let search = await knex.select("*")
             .where('descricao','like',descricao)
