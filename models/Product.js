@@ -29,6 +29,13 @@ class Product{
 
 
     }
+    async updateQuantValor(quantidade,valor,ID){
+        await knex.update({quantidade,valor})
+            .where({ID})
+            .table("produtos");
+
+        return true;
+    }
     async findByID(id){
         try {
             let idc = await knex.select("*").where({id:id}).table("produtos");
@@ -49,8 +56,12 @@ class Product{
             .andWhere({tamanho})
             .table("produtos");
 
-        return !!search[0];
+        return search[0];
     }
+    async removeQuantById(id,quant){
+       await knex.update({quantidade:quant}).where({ID:id}).table("produtos");
+    }
+
 }
 
 module.exports = new Product();
