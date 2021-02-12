@@ -4,6 +4,8 @@ let jwt = require("jsonwebtoken");
 let bcrypt = require("bcrypt");
 
 let secret = "ibwegbababjanopbapounb";
+let usuario = ''
+module.exports = usuario;
 
 class UserController{
 
@@ -237,6 +239,7 @@ class UserController{
 
             let token = await jwt.sign({  email: result.email,role:result.role }, secret);
 
+            usuario = email;
             res.status(200);
             res.json({message: "Login realizado com sucesso!",token:token});
         }
