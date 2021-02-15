@@ -1,6 +1,8 @@
 const usuario = require("../controllers/UserController");
 let Cart = require("../models/Cart");
 let Product = require("../models/Product")
+let User = require("../models/User")
+let Sell = require("../models/Sells")
 
 class CartController{
     async addProductCart(req,res){
@@ -20,6 +22,7 @@ class CartController{
         if(!valida){
             res.status(Valida.status);
             res.json(Valida.message);
+            return;
         }
 
 
@@ -29,6 +32,7 @@ class CartController{
             await Cart.addToCart(product.id,product.descricao,product.tamanho,quantidade1,valor1,"matholaslima4472@gmail.com");
             res.status(200);
             res.json({message:"Produto Criado com sucesso"});
+            return;
         }
 
         let update = await Cart.updateCartByProduct(product.id,novo.quantidade + quantidade1);
@@ -36,6 +40,7 @@ class CartController{
         if(!update){
             res.status(500);
             res.json({message:"ERRO INTERNO DO SISTEMA"});
+            return;
         }
 
         res.status(200);
@@ -48,6 +53,48 @@ class CartController{
 
         res.status(200);
         res.json(resultado);
+    }
+    async clearCart(req,res){
+        let usuario = req.params;
+
+        let deleteCart = await Cart.deleteCart(usuario);
+
+        res.status(deleteCart.statusCode);
+        res.json({message:deleteCart.message});
+    }
+    async finishCart(req,res){
+        let {usuario} = req.params;
+        let user = await User.findEmail(usuario);
+
+        let resultado = await Cart.findByUser(usuario);
+
+        let verifica = await Verificacao(resultado);
+
+        if(!verifica.status){
+            res.status(verifica.statusCode);
+            res.json({message:verifica.message});
+            return;
+        }
+
+        let venda = await Sell.insertVenda(verifica.quantidade,verifica.valortotal,user.id);
+
+        if(!venda.status){
+            res.status(venda.statusCode);
+            res.json({message:venda.message});
+            return;
+        }
+
+        let insertVI = await insertVendasItens(resultado,venda.id);
+
+        if(!insertVI.status){
+            res.status(insertVI.statusCode);
+            res.json({message:insertVI.message});
+        }
+
+        await Cart.deleteCart(usuario);
+
+        res.status(200);
+        res.json("Carrinho vendido com sucesso");
     }
 }
 
@@ -92,6 +139,39 @@ async function Quantidade(quantidade){
         return quantidade
     }
 
+}
+async function Verificacao(produtos){
+    let quantidade=0, valortotal=0;
+    for (let i=0;i<produtos.length;i++){
+        let produto = await Product.findByID(produtos[i].ID_produto);
+
+        quantidade = quantidade + produtos[i].quantprod;
+        valortotal = valortotal + (produtos[i].quantprod * produtos[i].valorprod);
+
+        if(produto[0].quantidade < produtos[i].quantprod){
+            return {
+                status:false,
+                statusCode:406,
+                message:`O produto (${produtos[i].descricao}): Quantidade vendida maior que a disponivel em estoque!`
+            }
+        }
+    }
+
+    return {status:true,quantidade: quantidade,valortotal:valortotal};
+}
+async function insertVendasItens(produtos,id_venda){
+    for (let i=0;i<produtos.length;i++){
+        let insert = await Sell.insertVendaItem(produtos[i],id_venda);
+
+        let produto = await Product.findByID(produtos[i].ID_produto);
+        await Product.removeQuantById(produtos[i].ID_produto,produto[0].quantidade - produtos[i].quantprod);
+
+        if(!insert.status){
+            return insert
+        }
+    }
+
+    return {status:true};
 }
 
 module.exports = new CartController();

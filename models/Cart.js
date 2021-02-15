@@ -44,11 +44,24 @@ class Cart{
     }
     async findByUser(usuario){
         try{
-            return await knex.select("*").where({usuario:usuario}).table("carrinho");
+            return await knex.select("*").where({usuario}).table("carrinho");
         }
         catch (e){
             console.log(e);
             return undefined;
+        }
+    }
+    async deleteCart(usuario){
+        try{
+            let del = await knex("carrinho").where({usuario:usuario}).del();
+            if(del===0){
+                return {statusCode:200,message:"Carrinho já limpo!"}
+            }
+
+            return {statusCode:200,message:"Carrinho foi limpo com sucesso!"}
+        }
+        catch (err){
+            return {statusCode:500,message:"Erro interno do sistema"}
         }
     }
 }
