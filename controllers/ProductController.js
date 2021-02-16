@@ -82,6 +82,7 @@ class ProductController{
         if(produ.quantidade < quantidade){
             res.status(406);
             res.json({"message": "Quantidade informada, maior que a disponivel em estoque!"});
+            return;
         }
         await Product.removeQuantById(produ.id,produ.quantidade-quantidade);
 

@@ -4,8 +4,6 @@ let jwt = require("jsonwebtoken");
 let bcrypt = require("bcrypt");
 
 let secret = "ibwegbababjanopbapounb";
-let usuario = ''
-module.exports = usuario;
 
 class UserController{
 
@@ -66,7 +64,6 @@ class UserController{
                 res.json({message:"Erro interno do sistema!"});
                 return;
             }
-
             res.status(200);
             res.json(user);
         }
@@ -239,9 +236,8 @@ class UserController{
 
             let token = await jwt.sign({  email: result.email,role:result.role }, secret);
 
-            usuario = email;
             res.status(200);
-            res.json({message: "Login realizado com sucesso!",token:token});
+            res.json({message: "Login realizado com sucesso!",token:token,id_user:result.id});
         }
         catch (err){
             console.log(err);

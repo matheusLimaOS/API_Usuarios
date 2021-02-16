@@ -23,7 +23,7 @@ class Cart{
                 return {"status":false};
             }
             else{
-                return {"status":true,"id":id,"quantidade":produto[0].quantprod};
+                return {"status":true,"id":id,"id_carrinho":produto[0].ID_carrinho,"quantidade":produto[0].quantprod};
             }
         }
         catch (err){
@@ -31,9 +31,9 @@ class Cart{
             return {"status":false};
         }
     }
-    async updateCartByProduct(idproduto,quantidade){
+    async updateCartByProduct(idcarrinho,quantidade){
         try{
-            await knex("carrinho").where({ID_produto:idproduto}).update({quantprod:quantidade});
+            await knex("carrinho").where({ID_carrinho:idcarrinho}).update({quantprod:quantidade});
 
             return {"status":true}
         }
@@ -44,7 +44,7 @@ class Cart{
     }
     async findByUser(usuario){
         try{
-            return await knex.select("*").where({usuario}).table("carrinho");
+            return await knex.select("*").where({usuario:usuario}).table("carrinho");
         }
         catch (e){
             console.log(e);
@@ -62,6 +62,18 @@ class Cart{
         }
         catch (err){
             return {statusCode:500,message:"Erro interno do sistema"}
+        }
+    }
+    async removeCart(id){
+        try{
+            await knex("carrinho").
+                where({ID_carrinho:id}).
+                del();
+
+            return {"statusCode":200,"message":"Produto removido do carrinho!"}
+        }
+        catch (err){
+            return {"statusCode":500,"message":"Erro interno do sistema"}
         }
     }
 }

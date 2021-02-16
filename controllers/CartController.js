@@ -1,4 +1,3 @@
-const usuario = require("../controllers/UserController");
 let Cart = require("../models/Cart");
 let Product = require("../models/Product")
 let User = require("../models/User")
@@ -6,6 +5,7 @@ let Sell = require("../models/Sells")
 
 class CartController{
     async addProductCart(req,res){
+        let {id} = req.params;
         let {descricao,quantidade,valor,tamanho} = req.body;
         let quantidade1,valor1,product;
         try {
@@ -14,7 +14,6 @@ class CartController{
         catch (err){
             console.log(err);
         }
-
         valor1 = await Valor(valor);
         quantidade1 = await Quantidade(quantidade);
         let valida = await Valida(quantidade1,product.quantidade,valor1);
@@ -25,19 +24,23 @@ class CartController{
             return;
         }
 
+        console.log();
+
+        let email = await User.findById(id);
+
 
         let novo = await Cart.findByProductID(product.id);
 
         if(!novo.status){
-            await Cart.addToCart(product.id,product.descricao,product.tamanho,quantidade1,valor1,"matholaslima4472@gmail.com");
+            await Cart.addToCart(product.id,product.descricao,product.tamanho,quantidade1,valor1,email.email);
             res.status(200);
             res.json({message:"Produto Criado com sucesso"});
             return;
         }
 
-        let update = await Cart.updateCartByProduct(product.id,novo.quantidade + quantidade1);
+        let update = await Cart.updateCartByProduct(novo.id_carrinho,novo.quantidade + quantidade1);
 
-        if(!update){
+        if(!update.status){
             res.status(500);
             res.json({message:"ERRO INTERNO DO SISTEMA"});
             return;
@@ -49,24 +52,34 @@ class CartController{
     async ListProductsCart(req,res){
         let {usuario} = req.params;
 
-        let resultado = await Cart.findByUser(usuario);
+        let user = await User.findById(usuario);
+
+        let resultado = await Cart.findByUser(user.email);
 
         res.status(200);
         res.json(resultado);
     }
     async clearCart(req,res){
-        let usuario = req.params;
+        let {usuario} = req.params;
 
-        let deleteCart = await Cart.deleteCart(usuario);
+        let user = await User.findById(usuario);
+
+        let deleteCart = await Cart.deleteCart(user.email);
 
         res.status(deleteCart.statusCode);
         res.json({message:deleteCart.message});
     }
     async finishCart(req,res){
         let {usuario} = req.params;
-        let user = await User.findEmail(usuario);
+        let user = await User.findById(usuario);
 
-        let resultado = await Cart.findByUser(usuario);
+        let resultado = await Cart.findByUser(user.email);
+
+        if(resultado.length===0){
+            res.status(404);
+            res.json({message:"Carrinho Vazio!"});
+            return;
+        }
 
         let verifica = await Verificacao(resultado);
 
@@ -76,7 +89,7 @@ class CartController{
             return;
         }
 
-        let venda = await Sell.insertVenda(verifica.quantidade,verifica.valortotal,user.id);
+        let venda = await Sell.insertVenda(verifica.quantidade,verifica.valortotal,usuario);
 
         if(!venda.status){
             res.status(venda.statusCode);
@@ -91,10 +104,27 @@ class CartController{
             res.json({message:insertVI.message});
         }
 
-        await Cart.deleteCart(usuario);
+        await Cart.deleteCart(user.email);
 
         res.status(200);
         res.json("Carrinho vendido com sucesso");
+    }
+    async addQuantProdCart(req,res){
+        let {id} = req.params;
+        let {quantidade} = req.body;
+
+        await Cart.updateCartByProduct(id,quantidade);
+
+        res.status(200);
+        res.json("DEU CERTO");
+    }
+    async removeCart(req,res){
+        let {id} = req.params;
+
+        let remove = await Cart.removeCart(id);
+
+        res.status(remove.statusCode);
+        res.json({"message":remove.message});
     }
 }
 

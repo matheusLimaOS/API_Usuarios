@@ -42,7 +42,6 @@ class User{
     async findById(id){
         try {
             let result = await knex.select(["id","name","email","role"]).from("users").where({id:id});
-            console.log(result);
             if(result[0])
                 return result[0];
             else
