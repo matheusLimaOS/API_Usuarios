@@ -41,13 +41,14 @@ class User{
 
     async findById(id){
         try {
-            let result = await knex.select(["id","name","email","role"]).from("useris").where({id:id});
+            let result = await knex.select(["id","name","email","role"]).from("users").where({id:id});
             if(result[0])
                 return result[0];
             else
                 return false;
         }
         catch (error){
+            console.log(error);
             return false;
         }
     }

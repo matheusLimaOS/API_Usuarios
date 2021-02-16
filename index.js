@@ -1,7 +1,10 @@
 let bodyParser = require('body-parser')
 let express = require("express")
 let app = express()
-let router = require("./routes/routes")
+let userRouter = require("./routes/userRoutes");
+let productRouter = require("./routes/productRoutes");
+let cartRouter = require("./routes/cartRoutes");
+let sellsRouter = require("./routes/sellsRoutes");
 const cors = require("cors");
 
 // parse application/x-www-form-urlencoded
@@ -18,7 +21,10 @@ app.use((req,res,next)=>{
     next();
 })
 
-app.use("/",router);
+app.use("/",userRouter);
+app.use("/product",productRouter);
+app.use("/cart",cartRouter);
+app.use("/sells",sellsRouter);
 
 app.listen(8686,() => {
     console.log("Servidor rodando")
