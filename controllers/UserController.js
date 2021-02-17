@@ -228,7 +228,15 @@ class UserController{
                 return;
             }
 
-            if(!await bcrypt.compare(password,result.password)){
+            let pass = await User.findPassword(result.id);
+
+            if(!password){
+                res.status(500);
+                res.json({message:"Erro interno do sistema"});
+                return;
+            }
+
+            if(!await bcrypt.compare(password,pass)){
                 res.status(401);
                 res.json({message: "Senha Incorreta"});
                 return;
@@ -236,8 +244,14 @@ class UserController{
 
             let token = await jwt.sign({  email: result.email,role:result.role }, secret);
 
+            if(result.name===null){
+                res.status(200);
+                res.json({message: "Login realizado com sucesso!",token:token,user:result});
+                return;
+            }
+
             res.status(200);
-            res.json({message: "Login realizado com sucesso!",token:token,id_user:result.id});
+            res.json({message: "Login realizado com sucesso!",token:token,user:result});
         }
         catch (err){
             console.log(err);
