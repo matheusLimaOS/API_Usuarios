@@ -1,5 +1,8 @@
 # API_Usuarios
 
+##O Script para a criação do banco de dados se encontra na pasta Database
+###Para alterar o usuário, vá no arquivo connection.js, dentro da pasta Database
+
 Rota GET: ("http://localhost:8686/user")
     
     --- FUNÇÂO DA ROTA ---
