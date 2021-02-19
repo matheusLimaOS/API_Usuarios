@@ -80,7 +80,7 @@ class UserController{
     async editUser(req,res){
         let id = req.params;
         let {email,name,role} = req.body;
-        let idc = await User.findById(id);
+        let idc = await User.findById(id.id);
         let date = {
             status: true,
             message: "Tudo OK",
@@ -113,7 +113,7 @@ class UserController{
                 }
 
                 res.status(200);
-                res.json(valida.message);
+                res.json({message:valida.message});
             }
             catch (err){
                 res.status(500);
@@ -143,7 +143,7 @@ class UserController{
                 return
             }
 
-            res.json(valida.user);
+            res.json({message:"Usuário deletado com sucesso!",deletedUser:valida.user});
         }
         catch (err){
             res.status(500);
