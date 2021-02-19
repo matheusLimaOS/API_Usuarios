@@ -80,7 +80,7 @@ class UserController{
     async editUser(req,res){
         let id = req.params;
         let {email,name,role} = req.body;
-        let idc = await User.findById(id);
+        let idc = await User.findById(id.id);
         let date = {
             status: true,
             message: "Tudo OK",
@@ -113,7 +113,7 @@ class UserController{
                 }
 
                 res.status(200);
-                res.json(valida.message);
+                res.json({message:valida.message});
             }
             catch (err){
                 res.status(500);
@@ -143,7 +143,7 @@ class UserController{
                 return
             }
 
-            res.json(valida.user);
+            res.json({message:"Usuário deletado com sucesso!",deletedUser:valida.user});
         }
         catch (err){
             res.status(500);
@@ -228,7 +228,15 @@ class UserController{
                 return;
             }
 
-            if(!await bcrypt.compare(password,result.password)){
+            let pass = await User.findPassword(result.id);
+
+            if(!password){
+                res.status(500);
+                res.json({message:"Erro interno do sistema"});
+                return;
+            }
+
+            if(!await bcrypt.compare(password,pass)){
                 res.status(401);
                 res.json({message: "Senha Incorreta"});
                 return;
@@ -236,8 +244,14 @@ class UserController{
 
             let token = await jwt.sign({  email: result.email,role:result.role }, secret);
 
+            if(result.name===null){
+                res.status(200);
+                res.json({message: "Login realizado com sucesso!",token:token,user:result});
+                return;
+            }
+
             res.status(200);
-            res.json({message: "Login realizado com sucesso!",token:token,id_user:result.id});
+            res.json({message: "Login realizado com sucesso!",token:token,user:result});
         }
         catch (err){
             console.log(err);

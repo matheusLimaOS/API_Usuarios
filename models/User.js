@@ -16,9 +16,22 @@ class User{
 
     }
 
+    async findPassword(id){
+        try {
+            let result = await knex.select(["password"]).from("users").where({id:id});
+            if(result[0])
+                return result[0].password;
+            else
+                return false;
+        }
+        catch (error){
+            return false;
+        }
+    }
+
     async findEmail(email){
         try {
-            let result = await knex.select("*").from("users").where({email:email});
+            let result = await knex.select(["id","name","email","role"]).from("users").where({email:email});
             if(result[0])
                 return result[0];
             else

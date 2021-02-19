@@ -29,7 +29,7 @@ class CartController{
         let email = await User.findById(id);
 
 
-        let novo = await Cart.findByProductID(product.id);
+        let novo = await Cart.findByProductID(product.id,email.email);
 
         if(!novo.status){
             await Cart.addToCart(product.id,product.descricao,product.tamanho,quantidade1,valor1,email.email);

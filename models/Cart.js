@@ -15,9 +15,9 @@ class Cart{
             console.log(err);
         }
     }
-    async findByProductID(id){
+    async findByProductID(id,usuario){
         try{
-            let produto = await knex("carrinho").where({ID_produto:id});
+            let produto = await knex("carrinho").where({ID_produto:id,usuario:usuario});
 
             if(produto[0] === undefined){
                 return {"status":false};
