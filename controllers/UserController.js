@@ -59,7 +59,7 @@ class UserController{
 
             let user = await User.new(email, password, name);
 
-            if(user===false){
+            if(!user){
                 res.status(500);
                 res.json({message:"Erro interno do sistema!"});
                 return;
@@ -156,7 +156,14 @@ class UserController{
 
     async recoverPass(req,res){
         let email = req.body.email;
-        let result = await PasswordToken.create(email);
+        let usuario = await User.findByEmail(email);
+
+        if(!usuario){
+            res.status(404)
+            res.json({"message":"Usuário não encontrado"});
+        }
+
+        let result = await PasswordToken.create(usuario.id);
 
         if(!result.status){
             res.status(result.statuscode);

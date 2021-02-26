@@ -4,20 +4,13 @@ const { v4: uuidv4 } = require('uuid');
 
 class PasswordToken{
 
-    async create(email){
-        let usuario;
+    async create(id){
         let token;
         try{
-            usuario = await User.findByEmail(email);
-
-            if(!usuario){
-                return {status: false, statuscode:404,err:"Usuário não encontrado"};
-            }
-
             token = uuidv4();
 
             await knex.insert({
-                user_id: usuario.id,
+                user_id: id,
                 used: 0,
                 token: token
             }).table("password_tokens")
